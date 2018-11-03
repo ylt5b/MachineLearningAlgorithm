@@ -22,34 +22,39 @@ def calcuate_distance(x, center):
             temp += (x[j] - center[i][j])**2
         dis.append(math.sqrt(temp))
     return dis
-    
-mat = scipy.io.loadmat('hw5_p1a.mat')
-data = mat['X']
-num_cluster = 3
-num_feature = data.shape[1]
-N = data.shape[0]
-mean = np.zeros((num_cluster, num_feature))
-
-min_value = np.min(data)
-max_value = np.max(data)
-cluster = np.zeros((N))
-for i in range(num_cluster):
-    for j in range(num_feature):
-        mean[i][j] = random.uniform(min_value, max_value)
-     
-iteration = 0
+  
+def kmeans(data, mean):
+    iteration = 0
 #while True:
-while iteration <= 5:
-    for i in range(N):
-        distance = calcuate_distance(data[i], mean)
-        loc = np.argmin(distance)
-        cluster[i] = loc
-        
+    while iteration <= 5:
+        for i in range(N):
+            distance = calcuate_distance(data[i], mean)
+            loc = np.argmin(distance)
+            cluster[i] = loc
+            
+        for i in range(num_cluster):
+            each_cluster = data[np.where(cluster == i)]
+            new_centroid = np.mean(each_cluster, 0)
+            mean[i] = new_centroid
+        iteration += 1
+            
+    plt.scatter(data[:,0], data[:,1], c = cluster)
+    plt.show
+    
+if __name__ == "__main__":
+    mat = scipy.io.loadmat('hw5_p1a.mat')
+    data = mat['X']
+    num_cluster = 3
+    num_feature = data.shape[1]
+    N = data.shape[0]
+    mean = np.zeros((num_cluster, num_feature))
+    
+    min_value = np.min(data)
+    max_value = np.max(data)
+    cluster = np.zeros((N))
     for i in range(num_cluster):
-        each_cluster = data[np.where(cluster == i)]
-        new_centroid = np.mean(each_cluster, 0)
-        mean[i] = new_centroid
-    iteration += 1
-        
-plt.scatter(data[:,0], data[:,1], c = cluster)
-plt.show
+        for j in range(num_feature):
+            mean[i][j] = random.uniform(min_value, max_value)
+     
+    kmeans(data, mean)
+
