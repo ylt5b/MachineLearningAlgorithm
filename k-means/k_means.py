@@ -6,7 +6,6 @@ Created on Fri Nov  2 18:14:44 2018
 @author: yang
 """
 
-import pickle
 import numpy as np
 import scipy.io
 import random as random
@@ -23,7 +22,7 @@ def calcuate_distance(x, center):
         dis.append(math.sqrt(temp))
     return dis
   
-def kmeans(data, mean):
+def kmeans(data, mean, cluster):
     iteration = 0
 #while True:
     while iteration <= 5:
@@ -41,20 +40,24 @@ def kmeans(data, mean):
     plt.scatter(data[:,0], data[:,1], c = cluster)
     plt.show
     
+def initialcentra(num_cluster, num_feature, N):
+    mean = np.zeros((num_cluster, num_feature))
+    
+    min_value = np.min(data)
+    max_value = np.max(data)
+    cluster = np.zeros((N))  
+    for i in range(num_cluster):
+        for j in range(num_feature):
+            mean[i][j] = random.uniform(min_value, max_value)
+    return cluster, mean
+    
 if __name__ == "__main__":
     mat = scipy.io.loadmat('hw5_p1a.mat')
     data = mat['X']
     num_cluster = 3
     num_feature = data.shape[1]
     N = data.shape[0]
-    mean = np.zeros((num_cluster, num_feature))
     
-    min_value = np.min(data)
-    max_value = np.max(data)
-    cluster = np.zeros((N))
-    for i in range(num_cluster):
-        for j in range(num_feature):
-            mean[i][j] = random.uniform(min_value, max_value)
-     
-    kmeans(data, mean)
+    cluster, mean = initialcentra(num_cluster, num_feature, N)   
+    kmeans(data, mean, cluster)
 
