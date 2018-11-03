@@ -8,34 +8,48 @@ Created on Fri Nov  2 18:14:44 2018
 
 import pickle
 import numpy as np
+import scipy.io
+import random as random
+import matplotlib.pyplot as plt
+import math
 
-with open('test.pickle', 'rb') as f:
-    inp = pickle.load(f)
-x = np.array([i[0] for i in inp])
-
-cluster = np.zeros(x.shape[0])
-minv = np.min(x, axis = 0)
-maxv = np.max(x, axis = 0)
-
-k = 3
-center = np.zeros((k, x.shape[1]))
-for i in range(k):
-    for j in x.shape[1]:
-        center[i,j] = np.random.randint(minv, maxv)
-        
-center_old = np.zeros(center.shape)
-
-while err != 0:
-    for i in range(len(x)):
-        distances = eucl_dist(x[i], center)
-        clust = np.argmin(distances)
-        cluster[i] = clust
-        
-    center_old = np.copy(center)
+def calcuate_distance(x, center):
+    dis = []  
+#    print x.shape, center
+    for i in range(len(center)):
+        temp = 0
+        for j in range(x.shape[0]):
+            temp += (x[j] - center[i][j])**2
+        dis.append(math.sqrt(temp))
+    return dis
     
-    for i in range(k):
-        points = [x[j] for j in range(len(x)) if cluster[j] == i]
-        if points:
-            center[i] = np.mean(points, axis = 0)
-            
-    err = eucl_dist(center, center_old, None)
+mat = scipy.io.loadmat('hw5_p1a.mat')
+data = mat['X']
+num_cluster = 3
+num_feature = data.shape[1]
+N = data.shape[0]
+mean = np.zeros((num_cluster, num_feature))
+
+min_value = np.min(data)
+max_value = np.max(data)
+cluster = np.zeros((N))
+for i in range(num_cluster):
+    for j in range(num_feature):
+        mean[i][j] = random.uniform(min_value, max_value)
+     
+iteration = 0
+#while True:
+while iteration <= 5:
+    for i in range(N):
+        distance = calcuate_distance(data[i], mean)
+        loc = np.argmin(distance)
+        cluster[i] = loc
+        
+    for i in range(num_cluster):
+        each_cluster = data[np.where(cluster == i)]
+        new_centroid = np.mean(each_cluster, 0)
+        mean[i] = new_centroid
+    iteration += 1
+        
+plt.scatter(data[:,0], data[:,1], c = cluster)
+plt.show
